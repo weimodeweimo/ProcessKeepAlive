@@ -1,0 +1,2 @@
+# ProcessKeepAlive
+进程保活防杀之使用前台service提高进程优先级，降低被kill概率
