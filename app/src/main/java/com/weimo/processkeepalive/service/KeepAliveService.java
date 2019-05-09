@@ -17,12 +17,15 @@ import com.weimo.processkeepalive.receiver.WakeReceiver;
 /**
  * @author weimo
  * 提升进程优先级的service
+ * 此方案只在8.0以下系统生效
  */
 public class KeepAliveService extends Service {
     private static final String TAG = KeepAliveService.class.getSimpleName();
     private static final int NOTIFICATION_ID = 0x01;
     private static final int ALARM_TIME = 5 * 60 * 1000;
     private static final int WAKE_REQUEST_CODE = 0x02;
+    private static final String CHANNEL_ID = "com.weimo.processkeepalive";
+    private static final String CHANNEL_NAME = "android 8.0 service";
 
     @Nullable
     @Override
@@ -43,14 +46,18 @@ public class KeepAliveService extends Service {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
             startForeground(NOTIFICATION_ID, new Notification());
         } else {
-            //API 18以上，发送Notifacation将service从后台置于前台后，启动InnerService
-            startService(new Intent(this, InnerService.class));
-            startForeground(NOTIFICATION_ID, new Notification());
+            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.O){
+                //API 18以上，发送Notifacation将service从后台置于前台后，启动InnerService
+                startService(new Intent(this, InnerService.class));
+                startForeground(NOTIFICATION_ID, new Notification());
+            }
         }
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        Intent alarmIntent = new Intent(WakeReceiver.WEAK_ACTION);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, WAKE_REQUEST_CODE, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), ALARM_TIME, pendingIntent);
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.O){
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            Intent alarmIntent = new Intent(WakeReceiver.WEAK_ACTION);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(this, WAKE_REQUEST_CODE, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), ALARM_TIME, pendingIntent);
+        }
         //如果Service被终止,当资源允许情况下，重启service
         return START_STICKY;
     }
@@ -66,7 +73,9 @@ public class KeepAliveService extends Service {
                 notificationManager.cancel(NOTIFICATION_ID);
             }
         }
-        startService(new Intent(getApplicationContext(), KeepAliveService.class));
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.O){
+            startService(new Intent(getApplicationContext(), KeepAliveService.class));
+        }
     }
 
     public static class InnerService extends Service {

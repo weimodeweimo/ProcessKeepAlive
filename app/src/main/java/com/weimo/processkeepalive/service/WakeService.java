@@ -16,6 +16,8 @@ import android.util.Log;
 public class WakeService  extends Service {
     private static final String TAG = WakeService.class.getSimpleName();
     private static final int WAKE_NOTIFICATION_ID = 0x03;
+    private static final String CHANNEL_ID = "com.weimo.processkeepalive.wake";
+    private static final String CHANNEL_NAME = "android 8.0 service wake";
 
     @Nullable
     @Override
@@ -25,7 +27,7 @@ public class WakeService  extends Service {
 
     @Override
     public void onCreate() {
-        Log.e(TAG, "WakeService onDestroy");
+        Log.e(TAG, "WakeService onCreate");
         super.onCreate();
     }
 
@@ -35,9 +37,11 @@ public class WakeService  extends Service {
         if (Build.VERSION.SDK_INT < 18) {
             startForeground(WAKE_NOTIFICATION_ID, new Notification());
         } else {
-            Intent innerIntent = new Intent(this, WakeInnerService.class);
-            startService(innerIntent);
-            startForeground(WAKE_NOTIFICATION_ID, new Notification());
+            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.O){
+                Intent innerIntent = new Intent(this, WakeInnerService.class);
+                startService(innerIntent);
+                startForeground(WAKE_NOTIFICATION_ID, new Notification());
+            }
         }
         return START_STICKY;
     }
@@ -52,7 +56,9 @@ public class WakeService  extends Service {
                 notificationManager.cancel(WAKE_NOTIFICATION_ID);
             }
         }
-        startService(new Intent(getApplicationContext(), WakeService.class));
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.O){
+            startService(new Intent(getApplicationContext(), WakeService.class));
+        }
         super.onDestroy();
     }
 
