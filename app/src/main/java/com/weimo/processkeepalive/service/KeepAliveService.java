@@ -24,8 +24,6 @@ public class KeepAliveService extends Service {
     private static final int NOTIFICATION_ID = 0x01;
     private static final int ALARM_TIME = 5 * 60 * 1000;
     private static final int WAKE_REQUEST_CODE = 0x02;
-    private static final String CHANNEL_ID = "com.weimo.processkeepalive";
-    private static final String CHANNEL_NAME = "android 8.0 service";
 
     @Nullable
     @Override

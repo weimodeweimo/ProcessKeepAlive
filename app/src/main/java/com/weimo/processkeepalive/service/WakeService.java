@@ -16,8 +16,6 @@ import android.util.Log;
 public class WakeService  extends Service {
     private static final String TAG = WakeService.class.getSimpleName();
     private static final int WAKE_NOTIFICATION_ID = 0x03;
-    private static final String CHANNEL_ID = "com.weimo.processkeepalive.wake";
-    private static final String CHANNEL_NAME = "android 8.0 service wake";
 
     @Nullable
     @Override
